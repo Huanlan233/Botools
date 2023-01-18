@@ -23,12 +23,10 @@
     ]
   },
   "mixins": [
-    "botools.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.8.7",
     "fabric": "*",
-    "fabric-language-kotlin": "*",
     "minecraft": "1.17.1"
   },
   "suggests": {
