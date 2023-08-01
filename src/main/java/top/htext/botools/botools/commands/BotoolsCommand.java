@@ -19,6 +19,7 @@ import top.htext.botools.botools.config.BotConfigManager;
 import top.htext.botools.botools.suggestions.BotSuggestionProvider;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 
 import static net.minecraft.server.command.CommandManager.argument;
@@ -33,30 +34,34 @@ public class BotoolsCommand {
                 })
                 .then(literal("info")
                         .then(argument("name", StringArgumentType.word())
-                                .executes(context -> BotoolsCommand.info(context, StringArgumentType.getString(context, "name")))
+                                .executes(context -> info(context, StringArgumentType.getString(context, "name")))
                                 .suggests((context, builder) -> new BotSuggestionProvider().getSuggestions(context,builder))))
                 .then(literal("spawn")
                         .then(argument("name", StringArgumentType.word())
                                 .then(literal("use")
                                         .then(literal("continuous")
-                                                .executes(context -> BotoolsCommand.spawnUseContinuous(context, StringArgumentType.getString(context, "name"))))
+                                                .executes(context -> spawnUseContinuous(context, StringArgumentType.getString(context, "name"))))
                                         .then(literal("once")
-                                                .executes(context -> BotoolsCommand.spawnUseOnce(context, StringArgumentType.getString(context, "name")))))
+                                                .executes(context -> spawnUseOnce(context, StringArgumentType.getString(context, "name")))))
                                 .suggests(((context, builder) -> new BotSuggestionProvider().getSuggestions(context, builder)))
-                                .executes(context -> BotoolsCommand.spawn(context, StringArgumentType.getString(context, "name")))))
+                                .executes(context -> spawn(context, StringArgumentType.getString(context, "name")))))
                 .then(literal("list")
                         .executes(BotoolsCommand::list))
                 .then(literal("remove")
                         .then(argument("name", StringArgumentType.word())
                                 .suggests((context, builder) -> new BotSuggestionProvider().getSuggestions(context, builder))
-                                .executes(context -> BotoolsCommand.remove(context, String.valueOf(StringArgumentType.getString(context, "name"))))))
+                                .executes(context -> remove(context, String.valueOf(StringArgumentType.getString(context, "name"))))))
                 .then(literal("add")
-                        .then(argument("name", StringArgumentType.word()).executes(context -> BotoolsCommand.add(context, String.valueOf(StringArgumentType.getString(context, "name")), null, null, null, null))
-                                .then(argument("info", StringArgumentType.string()).executes((context -> BotoolsCommand.add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), null,null,null)))
-                                        .then((argument("dimension", DimensionArgumentType.dimension()).executes((context -> BotoolsCommand.add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), null, null))))
-                                                .then(argument("pos", Vec3ArgumentType.vec3()).executes((context -> BotoolsCommand.add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getPosArgument(context, "pos").toAbsolutePos(context.getSource()), null)))
-                                                        .then(argument("rotation", RotationArgumentType.rotation()).executes((context -> BotoolsCommand.add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getPosArgument(context, "pos").toAbsolutePos(context.getSource()), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))
-                                                ))))));
+                        .then(argument("name", StringArgumentType.word()).executes(context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), null, null, null, null))
+                                .then(argument("info", StringArgumentType.string()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), null,null,null)))
+                                        .then(argument("rotation", RotationArgumentType.rotation()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getPosArgument(context, "pos").toAbsolutePos(context.getSource()), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))
+                                                .then((argument("pos", Vec3ArgumentType.vec3()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getPosArgument(context, "pos").toAbsolutePos(context.getSource()), null))))
+                                                        .then((argument("dimension", DimensionArgumentType.dimension()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), null, null)))))
+                                                )
+                                        )
+                                )
+                        )
+                );
         dispatcher.register(botools);
     }
 
@@ -71,7 +76,7 @@ public class BotoolsCommand {
             context.getSource().getPlayer().sendMessage((new TranslatableText(
                     "commands.botools.info",
                     botConfig.getName(),
-                    botConfig.getPos().getX(), botConfig.getPos().getY(), botConfig.getPos().getZ(),
+                    (botConfig.getPos().getX()), botConfig.getPos().getY(), botConfig.getPos().getZ(),
                     botConfig.getRotation().y, botConfig.getRotation().x,
                     botConfig.getDimension(),
                     botConfig.getInfo()
@@ -121,7 +126,10 @@ public class BotoolsCommand {
             String dimension = botConfig.getDimension().toString();
 
             context.getSource().getServer().getCommandManager().execute(context.getSource(),
-                    "/player " + name + " spawn at " + posX + " " + posY + " " + posZ + " facing " + rotY + " " + rotX + " in " + dimension
+                    MessageFormat.format(
+                            "/player {0} spawn at {1} {2} {3} facing {4} {5} in {6}",
+                            name, posY, posY, posZ, rotY, rotX, dimension
+                    )
             );
 
             return 1;
@@ -134,7 +142,7 @@ public class BotoolsCommand {
         spawn(context, name);
 
         context.getSource().getServer().getCommandManager().execute(context.getSource(),
-                "/player " + name + " use continuous"
+                MessageFormat.format("/player {0} use continuous", name)
         );
         return 1;
     }
@@ -143,7 +151,7 @@ public class BotoolsCommand {
         spawn(context, name);
 
         context.getSource().getServer().getCommandManager().execute(context.getSource(),
-                "/player " + name + " use once"
+                MessageFormat.format("/player {0} use once", name)
         );
         return 1;
     }
