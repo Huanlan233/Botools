@@ -1,0 +1,9 @@
+{
+  "commands.botools.help": "Botools by Huanlan233",
+  "commands.botools.list": "========[ Name: %s ]========\nPosition: [ X: %s, Y: %s, Z: %s ]\nDimension: %s\nInfo: %s",
+  "commands.botools.info": "========[ Name: %s ]========\nPosition: [ X: %s, Y: %s, Z: %s ]\nRotation: [ X: %s, Y: %s ]\nDimension: %s\nInfo: %s",
+  "commands.botools.add_bot.success": "Successfully added configuration for bot %s at X: %s, Y: %s, Z: %s.",
+  "commands.botools.remove_bot.success": "Successfully removed configuration for bot %s.",
+  "commands.botools.failed.exist": "This bot was found.",
+  "commands.botools.failed.not_exist": "This bot wasn't found."
+}
