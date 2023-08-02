@@ -65,9 +65,9 @@ public class BotoolsCommand {
                 .then(literal("add")
                         .then(argument("name", StringArgumentType.word()).executes(context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), null, null, null, null))
                                 .then(argument("info", StringArgumentType.string()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), null,null,null)))
-                                        .then(argument("rotation", RotationArgumentType.rotation()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))
                                                 .then((argument("pos", Vec3ArgumentType.vec3()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource())))))
-                                                        .then((argument("dimension", DimensionArgumentType.dimension()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))))
+                                                        .then(argument("rotation", RotationArgumentType.rotation()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))
+                                                                .then((argument("dimension", DimensionArgumentType.dimension()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))))
                                                 )
                                         )
                                 )
@@ -108,7 +108,7 @@ public class BotoolsCommand {
             context.getSource().getPlayer().sendMessage((new TranslatableText(
                     "commands.botools.info",
                     botConfig.getName(),
-                    (botConfig.getPos().getX()), botConfig.getPos().getY(), botConfig.getPos().getZ(),
+                    botConfig.getPos().getX(), botConfig.getPos().getY(), botConfig.getPos().getZ(),
                     botConfig.getRotation().y, botConfig.getRotation().x,
                     botConfig.getDimension(),
                     botConfig.getInfo()
