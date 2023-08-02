@@ -5,6 +5,10 @@ import com.google.gson.reflect.TypeToken;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.Vec3d;
+import top.htext.botools.botools.Botools;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,9 +42,7 @@ public class BotConfigManager {
 
     public static List<BotConfig> getBotConfigList(CommandContext<ServerCommandSource> context) throws IOException {
         File botConfigFile = getBotConfigFile(context);
-
         if (deserializer(botConfigFile) == null) return new ArrayList<>();
-
         return deserializer(botConfigFile);
     }
 
@@ -59,6 +61,21 @@ public class BotConfigManager {
     public static void removeBotConfig(CommandContext<ServerCommandSource> context, BotConfig botConfig) throws IOException {
         List<BotConfig> botConfigList = getBotConfigList(context);
         botConfigList.removeIf(config -> config.getName().equals(botConfig.getName()));
+        Files.writeString(Path.of(getBotConfigFile(context).toURI()), serializer(botConfigList));
+    }
+
+    public static <T> void modifyBotConfig(CommandContext<ServerCommandSource> context, String name, T value) throws IOException {
+        List<BotConfig> botConfigList = getBotConfigList(context);
+
+        botConfigList.stream()
+                .filter(config -> config.getName().equals(name))
+                .findFirst()
+                .ifPresent(config -> {
+                    if (value instanceof Vec3d) config.setPos((Vec3d) value);
+                    if (value instanceof Vec2f) config.setRotation((Vec2f) value);
+                    if (value instanceof String) config.setInfo((String) value);
+                    if (value instanceof Identifier) config.setDimension((Identifier) value);
+                });
         Files.writeString(Path.of(getBotConfigFile(context).toURI()), serializer(botConfigList));
     }
 }

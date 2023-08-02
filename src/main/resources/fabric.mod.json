@@ -3,13 +3,13 @@
   "id": "botools",
   "version": "${version}",
   "name": "Botools",
-  "description": "",
+  "description": "A simple tool, can spawn bot by position and angle you set.",
   "authors": [],
   "contact": {
     "repo": "https://github.com/Huanlan233/Botools"
   },
   "license": "MIT",
-  "icon": "assets/botools/icon.png",
+  "icon": "",
   "environment": "*",
   "entrypoints": {
     "client": [
