@@ -14,7 +14,6 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import top.htext.botools.botools.Botools;
 import top.htext.botools.botools.config.BotConfig;
 import top.htext.botools.botools.config.BotConfigManager;
 import top.htext.botools.botools.suggestions.BotSuggestionProvider;
@@ -22,7 +21,6 @@ import top.htext.botools.botools.suggestions.BotSuggestionProvider;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Objects;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
