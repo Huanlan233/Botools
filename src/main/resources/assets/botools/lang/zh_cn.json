@@ -2,8 +2,10 @@
   "commands.botools.help": "Botools by Huanlan233",
   "commands.botools.list": "========[ 名称: %s ]========\n坐标: [ X: %s, Y: %s, Z: %s ]\n维度: %s\n信息: %s",
   "commands.botools.info": "========[ 名称: %s ]========\n坐标: [ X: %s, Y: %s, Z: %s ]\n角度: [ X: %s, Y: %s ]\n维度: %s\n信息: %s",
-  "commands.botools.add_bot.success": "成功添加假人 %s 在 X: %s, Y: %s, Z: %s 的配置。",
-  "commands.botools.remove_bot.success": "成功删除假人 %s.",
-  "commands.botools.failed.exist": "该假人已存在。",
-  "commands.botools.failed.not_exist": "该假人不存在。"
+  "commands.botools.add_bot.success": "成功添加假人 %s 在 X: %s, Y: %s, Z: %s 的配置",
+  "commands.botools.remove_bot.success": "成功删除假人 %s",
+  "commands.botools.failed.exist": "该假人已存在",
+  "commands.botools.failed.not_exist": "该假人不存在",
+  "commands.botools.modify.success": "成功修改假人 %s 的配置",
+  "commands.botools.modify.failed.unknown_type": "未知的数据类型"
 }

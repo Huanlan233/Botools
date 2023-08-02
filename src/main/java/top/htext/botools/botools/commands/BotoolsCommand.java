@@ -14,6 +14,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import top.htext.botools.botools.Botools;
 import top.htext.botools.botools.config.BotConfig;
 import top.htext.botools.botools.config.BotConfigManager;
 import top.htext.botools.botools.suggestions.BotSuggestionProvider;
@@ -21,6 +22,7 @@ import top.htext.botools.botools.suggestions.BotSuggestionProvider;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -32,6 +34,17 @@ public class BotoolsCommand {
                     context.getSource().sendFeedback(new TranslatableText("commands.botools.help"),false);
                     return 1;
                 })
+                .then(literal("modify")
+                        .then(argument("name", StringArgumentType.word())
+                                .suggests((context, builder) -> new BotSuggestionProvider().getSuggestions(context, builder))
+                                .then(literal("info").then(argument("info", StringArgumentType.string())
+                                        .executes(context -> modify(context, StringArgumentType.getString(context, "name"), StringArgumentType.getString(context, "info")))))
+                                .then(literal("dimension").then(argument("dimension", DimensionArgumentType.dimension())
+                                        .executes(context -> modify(context, StringArgumentType.getString(context, "name"), DimensionArgumentType.getDimensionArgument(context, "dimension")))))
+                                .then(literal("rotation").then(argument("rotation", RotationArgumentType.rotation())
+                                        .executes(context -> modify(context, StringArgumentType.getString(context, "name"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource())))))
+                                .then(literal("pos").then(argument("pos", Vec3ArgumentType.vec3())
+                                        .executes(context -> modify(context, StringArgumentType.getString(context, "name"), Vec3ArgumentType.getVec3(context, "pos")))))))
                 .then(literal("info")
                         .then(argument("name", StringArgumentType.word())
                                 .executes(context -> info(context, StringArgumentType.getString(context, "name")))
@@ -54,15 +67,36 @@ public class BotoolsCommand {
                 .then(literal("add")
                         .then(argument("name", StringArgumentType.word()).executes(context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), null, null, null, null))
                                 .then(argument("info", StringArgumentType.string()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), null,null,null)))
-                                        .then(argument("rotation", RotationArgumentType.rotation()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getPosArgument(context, "pos").toAbsolutePos(context.getSource()), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))
-                                                .then((argument("pos", Vec3ArgumentType.vec3()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getPosArgument(context, "pos").toAbsolutePos(context.getSource()), null))))
-                                                        .then((argument("dimension", DimensionArgumentType.dimension()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), null, null)))))
+                                        .then(argument("rotation", RotationArgumentType.rotation()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))
+                                                .then((argument("pos", Vec3ArgumentType.vec3()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource())))))
+                                                        .then((argument("dimension", DimensionArgumentType.dimension()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))))
                                                 )
                                         )
                                 )
                         )
                 );
         dispatcher.register(botools);
+    }
+
+    private static <T> int modify(CommandContext<ServerCommandSource> context, String name, T value) {
+        try {
+            if (BotConfigManager.getBotConfig(context, name) == null) {
+                context.getSource().sendError(new TranslatableText("commands.botools.failed.not_exist"));
+                return 0;
+            }
+            if (!(value instanceof Vec3d) && !(value instanceof Vec2f) && !(value instanceof String) && !(value instanceof Identifier)) {
+                context.getSource().sendError(new TranslatableText("commands.botools.modify.failed.unknown_type"));
+                return 0;
+            }
+
+            BotConfigManager.modifyBotConfig(context, name, value);
+
+            context.getSource().sendFeedback(new TranslatableText("commands.botools.modify.success", name),true);
+
+            return 1;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static int info(CommandContext<ServerCommandSource> context, String name) throws CommandSyntaxException {
