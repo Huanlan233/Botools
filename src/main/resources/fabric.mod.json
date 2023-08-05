@@ -13,10 +13,10 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "top.htext.botools.botools.client.BotoolsClient"
+      "top.htext.botools.client.BotoolsClient"
     ],
     "main": [
-      "top.htext.botools.botools.Botools"
+      "top.htext.botools.Botools"
     ]
   },
   "mixins": [
