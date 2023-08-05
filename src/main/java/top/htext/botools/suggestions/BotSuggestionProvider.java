@@ -1,4 +1,4 @@
-package top.htext.botools.botools.suggestions;
+package top.htext.botools.suggestions;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -6,8 +6,8 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.server.command.ServerCommandSource;
-import top.htext.botools.botools.config.BotConfig;
-import top.htext.botools.botools.config.BotConfigManager;
+import top.htext.botools.config.BotConfig;
+import top.htext.botools.config.BotConfigManager;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 public class BotSuggestionProvider implements SuggestionProvider<ServerCommandSource> {
 
     @Override
-    public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder)  {
         try {
             List<BotConfig> botConfigList = BotConfigManager.getBotConfigList(context);
 

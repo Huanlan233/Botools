@@ -1,6 +1,7 @@
-package top.htext.botools.botools.commands;
+package top.htext.botools.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -10,13 +11,13 @@ import net.minecraft.command.argument.RotationArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import top.htext.botools.botools.config.BotConfig;
-import top.htext.botools.botools.config.BotConfigManager;
-import top.htext.botools.botools.suggestions.BotSuggestionProvider;
+import top.htext.botools.config.BotConfig;
+import top.htext.botools.config.BotConfigManager;
+import top.htext.botools.suggestions.BotSuggestionProvider;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -29,7 +30,7 @@ public class BotoolsCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         LiteralArgumentBuilder<ServerCommandSource> botools = CommandManager.literal("botools")
                 .executes(context -> {
-                    context.getSource().sendFeedback(new TranslatableText("commands.botools.help"),false);
+                    context.getSource().sendFeedback(Text.translatable("commands.botools.help"),false);
                     return 1;
                 })
                 .then(literal("modify")
@@ -51,11 +52,11 @@ public class BotoolsCommand {
                         .then(argument("name", StringArgumentType.word())
                                 .then(literal("use")
                                         .then(literal("continuous")
-                                                .executes(context -> spawnUseContinuous(context, StringArgumentType.getString(context, "name"))))
+                                                .executes(context -> spawnUseContinuous(context, dispatcher, StringArgumentType.getString(context, "name"))))
                                         .then(literal("once")
-                                                .executes(context -> spawnUseOnce(context, StringArgumentType.getString(context, "name")))))
+                                                .executes(context -> spawnUseOnce(context, dispatcher, StringArgumentType.getString(context, "name")))))
                                 .suggests(((context, builder) -> new BotSuggestionProvider().getSuggestions(context, builder)))
-                                .executes(context -> spawn(context, StringArgumentType.getString(context, "name")))))
+                                .executes(context -> spawn(context, dispatcher, StringArgumentType.getString(context, "name")))))
                 .then(literal("list")
                         .executes(BotoolsCommand::list))
                 .then(literal("remove")
@@ -79,17 +80,17 @@ public class BotoolsCommand {
     private static <T> int modify(CommandContext<ServerCommandSource> context, String name, T value) {
         try {
             if (BotConfigManager.getBotConfig(context, name) == null) {
-                context.getSource().sendError(new TranslatableText("commands.botools.failed.not_exist"));
+                context.getSource().sendError(Text.translatable("commands.botools.failed.not_exist"));
                 return 0;
             }
             if (!(value instanceof Vec3d) && !(value instanceof Vec2f) && !(value instanceof String) && !(value instanceof Identifier)) {
-                context.getSource().sendError(new TranslatableText("commands.botools.modify.failed.unknown_type"));
+                context.getSource().sendError(Text.translatable("commands.botools.modify.failed.unknown_type"));
                 return 0;
             }
 
             BotConfigManager.modifyBotConfig(context, name, value);
 
-            context.getSource().sendFeedback(new TranslatableText("commands.botools.modify.success", name),true);
+            context.getSource().sendFeedback(Text.translatable("commands.botools.modify.success", name),true);
 
             return 1;
         } catch (IOException e) {
@@ -97,15 +98,15 @@ public class BotoolsCommand {
         }
     }
 
-    private static int info(CommandContext<ServerCommandSource> context, String name) throws CommandSyntaxException {
+    private static int info(CommandContext<ServerCommandSource> context, String name)  {
         try {
             BotConfig botConfig = BotConfigManager.getBotConfig(context, name);
             if (botConfig == null) {
-                context.getSource().sendError(new TranslatableText("commands.botools.failed.not_exist"));
+                context.getSource().sendError(Text.translatable("commands.botools.failed.not_exist"));
                 return 0;
             }
 
-            context.getSource().getPlayer().sendMessage((new TranslatableText(
+            context.getSource().sendFeedback((Text.translatable(
                     "commands.botools.info",
                     botConfig.getName(),
                     botConfig.getPos().getX(), botConfig.getPos().getY(), botConfig.getPos().getZ(),
@@ -120,12 +121,12 @@ public class BotoolsCommand {
         }
     }
 
-    private static int list(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int list(CommandContext<ServerCommandSource> context)  {
         try {
             List<BotConfig> botConfigList = BotConfigManager.getBotConfigList(context);
 
             for ( BotConfig botConfig : botConfigList ){
-                context.getSource().getPlayer().sendMessage((new TranslatableText(
+                context.getSource().sendFeedback((Text.translatable(
                         "commands.botools.list",
                         botConfig.getName(),
                         botConfig.getPos().getX(), botConfig.getPos().getY(), botConfig.getPos().getZ(),
@@ -139,12 +140,12 @@ public class BotoolsCommand {
         }
     }
 
-    private static int spawn(CommandContext<ServerCommandSource> context, String name) {
+    private static int spawn(CommandContext<ServerCommandSource> context, CommandDispatcher<ServerCommandSource> dispatcher, String name) {
         try {
             BotConfig botConfig = BotConfigManager.getBotConfig(context, name);
 
             if (botConfig == null) {
-                context.getSource().sendError(new TranslatableText("commands.botools.failed.not_exist"));
+                context.getSource().sendError(Text.translatable("commands.botools.failed.not_exist"));
                 return 0;
             }
 
@@ -157,34 +158,39 @@ public class BotoolsCommand {
 
             String dimension = botConfig.getDimension().toString();
 
-            context.getSource().getServer().getCommandManager().execute(context.getSource(),
-                    MessageFormat.format(
-                            "/player {0} spawn at {1} {2} {3} facing {4} {5} in {6}",
-                            name, posY, posY, posZ, rotY, rotX, dimension
-                    )
-            );
+            ParseResults<ServerCommandSource> parseResults = dispatcher.parse(MessageFormat.format(
+                    "player {0} spawn at {1} {2} {3} facing {4} {5} in {6}",
+                    name, posX, posY, posZ, rotY, rotX, dimension
+            ), context.getSource());
+
+            dispatcher.execute(parseResults);
 
             return 1;
-        } catch (IOException e) {
+        } catch (IOException | CommandSyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static int spawnUseContinuous(CommandContext<ServerCommandSource> context, String name){
-        spawn(context, name);
+    private static int spawnUseContinuous(CommandContext<ServerCommandSource> context, CommandDispatcher<ServerCommandSource> dispatcher, String name) throws CommandSyntaxException {
+        spawn(context, dispatcher, name);
 
-        context.getSource().getServer().getCommandManager().execute(context.getSource(),
-                MessageFormat.format("/player {0} use continuous", name)
+        ParseResults<ServerCommandSource> parseResults = dispatcher.parse(
+                MessageFormat.format("player {0} use continuous", name),
+                context.getSource()
         );
+
+        dispatcher.execute(parseResults);
         return 1;
     }
 
-    private static int spawnUseOnce(CommandContext<ServerCommandSource> context, String name){
-        spawn(context, name);
+    private static int spawnUseOnce(CommandContext<ServerCommandSource> context, CommandDispatcher<ServerCommandSource> dispatcher, String name) throws CommandSyntaxException {
+        spawn(context, dispatcher, name);
 
-        context.getSource().getServer().getCommandManager().execute(context.getSource(),
-                MessageFormat.format("/player {0} use once", name)
+        ParseResults<ServerCommandSource> parseResults = dispatcher.parse(
+                MessageFormat.format("player {0} use once", name),
+                context.getSource()
         );
+        dispatcher.execute(parseResults);
         return 1;
     }
 
@@ -193,13 +199,13 @@ public class BotoolsCommand {
             BotConfig botConfig = BotConfigManager.getBotConfig(context, name); // This will be removed
 
             if (botConfig == null) {
-                context.getSource().sendError(new TranslatableText("commands.botools.failed.not_exist"));
+                context.getSource().sendError(Text.translatable("commands.botools.failed.not_exist"));
                 return 0;
             }
 
             BotConfigManager.removeBotConfig(context, botConfig);
 
-            context.getSource().sendFeedback(new TranslatableText("commands.botools.remove_bot.success", name), true);
+            context.getSource().sendFeedback(Text.translatable("commands.botools.remove_bot.success", name), true);
 
             return 1;
         } catch (IOException e) {
@@ -207,23 +213,23 @@ public class BotoolsCommand {
         }
     }
 
-    private static int add(CommandContext<ServerCommandSource> context, String name, String info, Identifier dimension, Vec3d pos, Vec2f rotation) throws CommandSyntaxException {
+    private static int add(CommandContext<ServerCommandSource> context, String name, String info, Identifier dimension, Vec3d pos, Vec2f rotation) {
         if (info == null) info = "";
-        if (dimension == null)  dimension = context.getSource().getPlayer().getEntityWorld().getRegistryKey().getValue();
-        if (pos == null) pos = context.getSource().getPlayer().getPos();
-        if (rotation == null) rotation = context.getSource().getPlayer().getRotationClient();
+        if (dimension == null)  dimension = context.getSource().getWorld().getRegistryKey().getValue();
+        if (pos == null) pos = context.getSource().getPosition();
+        if (rotation == null) rotation = context.getSource().getRotation();
 
         try {
             BotConfig botConfig = new BotConfig(name, pos, rotation, dimension, info); // This will be added.
 
             if (BotConfigManager.getBotConfig(context, botConfig.getName()) != null) {
-                context.getSource().sendError(new TranslatableText("commands.botools.failed.exist"));
+                context.getSource().sendError(Text.translatable("commands.botools.failed.exist"));
                 return 0;
             }
 
             BotConfigManager.addBotConfig(context, botConfig);
 
-            context.getSource().sendFeedback(new TranslatableText("commands.botools.add_bot.success", name, pos.getX(), pos.getY(), pos.getZ()), true);
+            context.getSource().sendFeedback(Text.translatable("commands.botools.add_bot.success", name, pos.getX(), pos.getY(), pos.getZ()), true);
             return 1;
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -1,4 +1,4 @@
-package top.htext.botools.botools.config;
+package top.htext.botools.config;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec2f;
