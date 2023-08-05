@@ -1,4 +1,4 @@
-package top.htext.botools.botools.config;
+package top.htext.botools.config;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -8,7 +8,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import top.htext.botools.botools.Botools;
 
 import java.io.File;
 import java.io.IOException;

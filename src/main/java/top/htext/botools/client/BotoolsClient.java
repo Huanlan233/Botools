@@ -1,4 +1,4 @@
-package top.htext.botools.botools.client;
+package top.htext.botools.client;
 
 import net.fabricmc.api.ClientModInitializer;
 
