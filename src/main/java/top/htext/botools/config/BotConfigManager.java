@@ -1,4 +1,4 @@
-package top.htext.botools.botools.config;
+package top.htext.botools.config;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
