@@ -160,7 +160,7 @@ public class BotoolsCommand {
             context.getSource().getServer().getCommandManager().execute(context.getSource(),
                     MessageFormat.format(
                             "/player {0} spawn at {1} {2} {3} facing {4} {5} in {6}",
-                            name, posY, posY, posZ, rotY, rotX, dimension
+                            name, posX, posY, posZ, rotY, rotX, dimension
                     )
             );
 
