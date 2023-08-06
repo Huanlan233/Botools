@@ -159,7 +159,7 @@ public class BotoolsCommand {
             String dimension = botConfig.getDimension().toString();
 
             ParseResults<ServerCommandSource> parseResults = dispatcher.parse(MessageFormat.format(
-                    "player {0} spawn at {1} {2} {3} facing {4} {5} in {6}",
+                    "player {0} spawn at {1} {2} {3} facing {4} {5} in {6} ",
                     name, posX, posY, posZ, rotY, rotX, dimension
             ), context.getSource());
 
