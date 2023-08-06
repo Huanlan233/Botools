@@ -65,7 +65,7 @@ public class BotoolsCommand {
                 .then(literal("add")
                         .then(argument("name", StringArgumentType.word()).executes(context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), null, null, null, null))
                                 .then(argument("info", StringArgumentType.string()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), null,null,null)))
-                                                .then((argument("pos", Vec3ArgumentType.vec3()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))
+                                        .then((argument("pos", Vec3ArgumentType.vec3()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))
                                                         .then(argument("rotation", RotationArgumentType.rotation()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource()))))
                                                                 .then((argument("dimension", DimensionArgumentType.dimension()).executes((context -> add(context, String.valueOf(StringArgumentType.getString(context, "name")), StringArgumentType.getString(context, "info"), DimensionArgumentType.getDimensionArgument(context, "dimension").getRegistryKey().getValue(), Vec3ArgumentType.getVec3(context, "pos"), RotationArgumentType.getRotation(context, "rotation").toAbsoluteRotation(context.getSource())))))))
                                                 )
@@ -157,7 +157,7 @@ public class BotoolsCommand {
 
             String dimension = botConfig.getDimension().toString();
 
-            context.getSource().getServer().getCommandManager().execute(context.getSource(),
+            context.getSource().getMinecraftServer().getCommandManager().execute(context.getSource(),
                     MessageFormat.format(
                             "/player {0} spawn at {1} {2} {3} facing {4} {5} in {6}",
                             name, posX, posY, posZ, rotY, rotX, dimension
@@ -173,7 +173,7 @@ public class BotoolsCommand {
     private static int spawnUseContinuous(CommandContext<ServerCommandSource> context, String name){
         spawn(context, name);
 
-        context.getSource().getServer().getCommandManager().execute(context.getSource(),
+        context.getSource().getMinecraftServer().getCommandManager().execute(context.getSource(),
                 MessageFormat.format("/player {0} use continuous", name)
         );
         return 1;
@@ -182,7 +182,7 @@ public class BotoolsCommand {
     private static int spawnUseOnce(CommandContext<ServerCommandSource> context, String name){
         spawn(context, name);
 
-        context.getSource().getServer().getCommandManager().execute(context.getSource(),
+        context.getSource().getMinecraftServer().getCommandManager().execute(context.getSource(),
                 MessageFormat.format("/player {0} use once", name)
         );
         return 1;

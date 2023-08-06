@@ -31,7 +31,7 @@ public class BotConfigManager {
 
     private static File getBotConfigFile(CommandContext<ServerCommandSource> context) throws IOException {
         File dir = new File(MinecraftClient.getInstance().runDirectory + "/config/botools");
-        File file = new File(dir + "/" + context.getSource().getServer().getSaveProperties().getLevelName() + ".json");
+        File file = new File(dir + "/" + context.getSource().getMinecraftServer().getSaveProperties().getLevelName() + ".json");
 
         if (!dir.exists()) dir.mkdirs();
         if (!file.exists()) file.createNewFile();
